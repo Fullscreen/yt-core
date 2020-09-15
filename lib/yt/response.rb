@@ -94,6 +94,9 @@ module Yt
 
     def default_params(options)
       {}.tap do |params|
+        if not options[:conditions].nil? then
+          params.merge! options[:conditions]
+        end
         params[:max_results] = 50
         params[:part] = options[:parts].join ','
         params[:page_token] = options[:offset]

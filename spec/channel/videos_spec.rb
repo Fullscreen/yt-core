@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'date'
 
 describe 'Yt::Channel#videos', :server do
   subject(:channel) { Yt::Channel.new attrs }
@@ -13,6 +14,14 @@ describe 'Yt::Channel#videos', :server do
     it 'returns videos sorted by descending published date' do
       dates = channel.videos.map &:published_at
       expect(dates).to eq dates.sort.reverse
+    end
+
+    it 'returns videos published between 2 weeks and today' do
+      publishedBefore = Date.today
+      publishedAfter = Date.today - 2.weeks
+
+      dates = channel.videos.where(publishedAfter: publishedAfter.rfc3339(), publishedBefore: publishedBefore.rfc3339()).map &:published_at
+      expect(dates).to satisfy { |date| date >= publishedAfter.rfc3339() && date <= publishedBefore.rfc3339() }
     end
 
     it 'does not make any HTTP requests unless iterated', requests: 0 do
